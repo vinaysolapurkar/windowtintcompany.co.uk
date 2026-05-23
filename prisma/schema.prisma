@@ -1,0 +1,119 @@
+// SQLite for now — switch `provider` to "postgresql" and DATABASE_URL when moving to Neon.
+// Field shapes are kept Postgres-compatible (no SQLite-only types).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("admin") // admin | editor
+  avatarUrl    String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  posts        Post[]
+}
+
+model Post {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  title        String
+  excerpt      String
+  content      String    // HTML from Tiptap
+  coverImage   String?
+  category     String    @default("Guide") // Guide | News | Case Study | Inspiration
+  tags         String    @default("") // comma-separated for SQLite-friendliness
+  readingMins  Int       @default(4)
+  published    Boolean   @default(false)
+  featured     Boolean   @default(false)
+  publishedAt  DateTime?
+  authorId     String
+  author       User      @relation(fields: [authorId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+  @@index([category])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  tagline     String
+  description String   // HTML
+  shortDesc   String
+  icon        String   // lucide icon name
+  heroImage   String?
+  features    String   // JSON-encoded array of {title,description}
+  vlt         String?  // visible light transmission spec, e.g. "5–35%"
+  uvBlock     String?  // "99%"
+  heatReject  String?  // "78%"
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ShowcaseProject {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  client      String?
+  location    String?
+  category    String   @default("Residential")
+  summary     String
+  body        String   // HTML
+  heroImage   String
+  gallery     String   @default("") // comma-separated urls
+  filmUsed    String?
+  completedOn DateTime?
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lead {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  postcode     String?
+  projectTypes String   // comma-separated
+  comment      String?
+  referenceUrl String?
+  source       String   @default("contact-form")
+  status       String   @default("new") // new | contacted | quoted | won | lost
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String
+  filename  String
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  alt       String?
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  key   String @id
+  value String
+}

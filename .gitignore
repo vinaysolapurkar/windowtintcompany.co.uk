@@ -33,6 +33,16 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local SQLite database — production uses Neon Postgres
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-journal
+
+# uploaded media (large, local-only — uploaded via admin)
+public/uploads/*
+!public/uploads/.gitkeep
+
 # vercel
 .vercel
 
