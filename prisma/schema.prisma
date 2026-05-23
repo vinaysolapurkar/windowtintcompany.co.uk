@@ -1,12 +1,11 @@
-// SQLite for now — switch `provider` to "postgresql" and DATABASE_URL when moving to Neon.
-// Field shapes are kept Postgres-compatible (no SQLite-only types).
+// Postgres (Neon). Schema kept Postgres-clean throughout.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
